@@ -1,0 +1,225 @@
+{
+    "name": "PromptEngineer",
+    "nodes": [
+        {
+            "id": "2",
+            "position": {
+                "x": 0,
+                "y": 200
+            },
+            "data": {
+                "label": "refine"
+            },
+            "type": "key"
+        },
+        {
+            "id": "3",
+            "position": {
+                "x": 200,
+                "y": 200
+            },
+            "data": {
+                "label": "execute_prompt",
+                "udf": "@PromptEngineer.infer(\"refine\")\n@retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))\ndef execute_prompt(state, value):\n    template = state[\"best_template\"]\n    results = state[\"best_results\"]\n    cost = 0.0\n    # results, cost = asyncio.run(evaluate_examples(state, template))\n\n    prompt = Prompt(template=template, task=state[\"task\"])\n\n    # Get feedback on the results\n    prompt_for_feedback = prompt.assemble_for_feedback(str(results))\n    response = openai.ChatCompletion.create(\n        model=\"gpt-3.5-turbo\",\n        messages=[state[\"prompteng_system_message\"]]\n        + state[\"prompteng_messages\"]\n        + [{\"role\": \"user\", \"content\": prompt_for_feedback}],\n        stop=[\"\\n\"],\n    )\n    cost += response[\"usage\"][\"total_tokens\"] * 0.002 / 1000.0\n    feedback = response[\"choices\"][0].message[\"content\"]\n\n    # Get a new prompt\n    user_prompt = prompt.assemble_for_new_prompt(feedback)\n    messages = [{\"role\": \"user\", \"content\": user_prompt}]\n    while True:\n        current_messages = state[\"prompteng_messages\"] + messages\n        try:\n            response = openai.ChatCompletion.create(\n                model=\"gpt-3.5-turbo\",\n                messages=[state[\"prompteng_system_message\"]]\n                + current_messages,\n                stop=[\"\\n\"],\n            )\n        except Exception as e:\n            print([state[\"prompteng_system_message\"]] + current_messages)\n            raise e\n        cost += response[\"usage\"][\"total_tokens\"] * 0.002 / 1000.0\n        better_prompt = response[\"choices\"][0].message[\"content\"]\n\n        # Extract the quote from the better prompt\n        if \":\" in better_prompt:\n            better_prompt = \"\".join(better_prompt.split(\":\")[1:])\n        better_prompt = better_prompt.strip()\n        if (\n            \"{example}\" in better_prompt\n            and len(set(re.findall(r\"\\{(.*?)\\}\", better_prompt))) == 1\n        ):\n            break\n        else:\n            # print(\"The prompt is not valid; retrying.\")\n            # print(response)\n            user_message = {\n                \"role\": \"user\",\n                \"content\": \"Please include the phrase {example} in the prompt template. Don't include any other template variables.\",\n            }\n            messages += [\n                # {\"role\": \"assistant\", \"content\": better_prompt},\n                user_message,\n            ]\n\n    # Return feedback, better prompt, and cost so far\n    return messages[0], better_prompt, cost\n"
+            },
+            "type": "infer"
+        },
+        {
+            "id": "4",
+            "position": {
+                "x": 800,
+                "y": 200
+            },
+            "data": {
+                "label": "update_cost",
+                "udf": "@PromptEngineer.fit(\"refine\", batch_size=1)\ndef update_cost(state, values, infer_results):\n    return {\"cost\": state[\"cost\"] + infer_results[0][2]}\n",
+                "batch_size": 1
+            },
+            "type": "fit"
+        },
+        {
+            "id": "5",
+            "position": {
+                "x": 1400,
+                "y": 200
+            },
+            "data": {
+                "label": "update_template",
+                "udf": "@PromptEngineer.fit(\"refine\", batch_size=5)\ndef update_template(state, values, infer_results):\n    # Update state vars, including best prompt\n    cost = 0.0\n\n    best_template = state[\"best_template\"]\n    task = state[\"task\"]\n    best_results = state[\"best_results\"]\n\n    new_templates = [result[1] for result in infer_results]\n\n    # Get all the results for all the new templates and examples\n    new_eval_results, eval_cost = asyncio.run(\n        eval_examples_many_templates(state[\"examples\"], new_templates)\n    )\n    cost += eval_cost\n\n    # Run pairwise comparisons to find the best prompt\n    templates_and_results: List[Tuple[str, Dict[str, str]]] = [\n        (new_template, new_eval_result)\n        for new_template, new_eval_result in zip(\n            new_templates, new_eval_results\n        )\n    ]\n    templates_and_results.append((best_template, best_results))\n    best_template_result, compare_cost = asyncio.run(\n        find_best_prompt(task, templates_and_results)\n    )\n    cost += compare_cost\n    best_template = best_template_result[0]\n    best_results = best_template_result[1]\n\n    # Find the message for the best template\n    updated_messages = []\n    if best_template != state[\"best_template\"]:\n        updated_messages += [\n            msg\n            for msg, template, _ in infer_results\n            if template == best_template\n        ]\n        updated_messages += [{\"role\": \"assistant\", \"content\": best_template}]\n\n    return {\n        \"prompteng_messages\": state[\"prompteng_messages\"] + updated_messages,\n        \"cost\": state[\"cost\"] + cost,\n        \"best_template\": best_template,\n        \"best_results\": best_results,\n    }\n",
+                "batch_size": 5
+            },
+            "type": "fit"
+        },
+        {
+            "id": "6",
+            "position": {
+                "x": 0,
+                "y": 300
+            },
+            "data": {
+                "label": "add_example"
+            },
+            "type": "key"
+        },
+        {
+            "id": "7",
+            "position": {
+                "x": 800,
+                "y": 300
+            },
+            "data": {
+                "label": "add_example",
+                "udf": "@PromptEngineer.fit(\"add_example\", batch_size=1)\ndef add_example(state, values, infer_results):\n    return {\"examples\": state[\"examples\"] + values}\n",
+                "batch_size": 1
+            },
+            "type": "fit"
+        },
+        {
+            "id": "8",
+            "position": {
+                "x": 0,
+                "y": 400
+            },
+            "data": {
+                "label": "remove_example"
+            },
+            "type": "key"
+        },
+        {
+            "id": "9",
+            "position": {
+                "x": 800,
+                "y": 400
+            },
+            "data": {
+                "label": "remove_example",
+                "udf": "@PromptEngineer.fit(\"remove_example\", batch_size=1)\ndef remove_example(state, values, infer_results):\n    examples = state[\"examples\"]\n    examples.remove(values[0])\n    return {\"examples\": examples}\n",
+                "batch_size": 1
+            },
+            "type": "fit"
+        },
+        {
+            "id": "10",
+            "position": {
+                "x": 0,
+                "y": 500
+            },
+            "data": {
+                "label": "init_template"
+            },
+            "type": "key"
+        },
+        {
+            "id": "11",
+            "position": {
+                "x": 800,
+                "y": 500
+            },
+            "data": {
+                "label": "set_template",
+                "udf": "@PromptEngineer.fit(\"init_template\", batch_size=1)\ndef set_template(state, values, infer_results):\n    results, cost = asyncio.run(\n        evaluate_examples(state[\"examples\"], values[0])\n    )\n    return {\n        \"best_template\": values[0],\n        \"best_results\": results,\n        \"task\": values[0],\n        \"cost\": state[\"cost\"] + cost,\n    }\n",
+                "batch_size": 1
+            },
+            "type": "fit"
+        },
+        {
+            "id": "1",
+            "position": {
+                "x": 1000,
+                "y": 0
+            },
+            "data": {
+                "label": "state"
+            },
+            "type": "state"
+        }
+    ],
+    "edges": [
+        {
+            "id": "e2-3",
+            "source": "2",
+            "target": "3",
+            "targetHandle": "left"
+        },
+        {
+            "id": "e1-3",
+            "source": "1",
+            "target": "3",
+            "targetHandle": "top"
+        },
+        {
+            "id": "e4-1",
+            "target": "1",
+            "source": "4",
+            "sourceHandle": "top",
+            "animated": true,
+            "label": "batch_size: 1"
+        },
+        {
+            "id": "e3-4",
+            "source": "3",
+            "sourceHandle": "right",
+            "target": "4",
+            "targetHandle": "left",
+            "animated": true
+        },
+        {
+            "id": "e5-1",
+            "target": "1",
+            "source": "5",
+            "sourceHandle": "top",
+            "animated": true,
+            "label": "batch_size: 5"
+        },
+        {
+            "id": "e3-5",
+            "source": "3",
+            "sourceHandle": "right",
+            "target": "5",
+            "targetHandle": "left",
+            "animated": true
+        },
+        {
+            "id": "e7-1",
+            "target": "1",
+            "source": "7",
+            "sourceHandle": "top",
+            "animated": true,
+            "label": "batch_size: 1"
+        },
+        {
+            "id": "e6-7",
+            "source": "6",
+            "target": "7",
+            "targetHandle": "left"
+        },
+        {
+            "id": "e9-1",
+            "target": "1",
+            "source": "9",
+            "sourceHandle": "top",
+            "animated": true,
+            "label": "batch_size: 1"
+        },
+        {
+            "id": "e8-9",
+            "source": "8",
+            "target": "9",
+            "targetHandle": "left"
+        },
+        {
+            "id": "e11-1",
+            "target": "1",
+            "source": "11",
+            "sourceHandle": "top",
+            "animated": true,
+            "label": "batch_size: 1"
+        },
+        {
+            "id": "e10-11",
+            "source": "10",
+            "target": "11",
+            "targetHandle": "left"
+        }
+    ]
+}

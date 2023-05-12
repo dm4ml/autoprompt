@@ -1,0 +1,6 @@
+motion-python
+rich
+openai
+pydantic
+asyncio
+tenacity
