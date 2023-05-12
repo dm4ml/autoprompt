@@ -1,6 +1,6 @@
 # AutoPrompt
 
-This is a simple tool to help you refine your prompt for OpenAI's ChatGPT to perform some task. You specify a prompt template, some examples to evaluate the prompt template on, and the tool will iteratively refine the prompt template to perform better on the examples.
+This is a simple tool to help you **automatically find the best prompt for ChatGPT to do a task.** You specify a prompt template, some examples to evaluate the prompt template on, and the tool will iteratively refine the prompt template to perform better on the examples.
 
 ## Installation
 
@@ -105,9 +105,9 @@ This is an example application of [Motion](https://dm4ml.github.io/motion/), an 
 
 In the Motion component (src/component.py), we essentially maintain 3 LLM connections:
 
-1. Prompt engineer, where the goal is to suggest a new prompts that would improve on the current prompt template (gpt-3.5-turbo)
-2. Answer model, where the goal is to generate an answer to a prompt for a specific example (text-babbage to reduce cost)
-3. Evaluator model, where the goal is to take two answers and determine which one is better (gpt-3.5-turbo)
+1. Prompt engineer, which iteratively suggests a new prompt template that would improve on the current prompt template (gpt-3.5-turbo)
+2. Answer model, which generates an answer to a prompt for a specific example (text-babbage to reduce cost)
+3. Evaluator model, which takes take two answers and determines which one is better (gpt-3.5-turbo)
 
 The results from the answer model might not be very good, but once you find a good template, you can run the template on better models to get better answers. The answer model is only used for comparing prompt templates.
 
