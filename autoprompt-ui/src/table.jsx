@@ -47,39 +47,7 @@ export default function PromptTable(props) {
           // Clear the interval when the component unmounts
           clearInterval(intervalId);
         };
-    }, []);
-
-    const products = [
-        {
-          template: 'template3 this one is so long and so many words to see if it will actually wrap. i will be very curious to see if it will wrap.',
-          results: [
-            {
-                prompt: 'bunnypromptttt',
-                completion: 'this is a bunny rabbit'
-            }, 
-            {
-                prompt: 'catprompttt',
-                completion: 'this is a cat'
-            }
-          ],
-          status: 'best',
-        },
-        {
-            template: 'template1 this one is short',
-            results: [
-              {
-                  prompt: 'aoeuaoeu',
-                  completion: 'this is a bunny rabbit'
-              }, 
-              {
-                  prompt: '.....',
-                  completion: 'this is a cat'
-              }
-            ],
-            status: 'n/a',
-          },
-      ];
-    
+    }, []);    
 
 
     const rowExpansionTemplate = (data) => {

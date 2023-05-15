@@ -75,10 +75,16 @@ const Header = React.forwardRef((props, ref) => {
         </React.Fragment>
     );
 
+    const center = (
+        <React.Fragment>
+            <div style={{fontSize: '1.5em', fontWeight: 'bold', color: 'var(--highlight-text-color)', fontVariant: 'small-caps'}}>Autoprompt</div>
+        </React.Fragment>
+    )
+
 
     return (
         <div style={{ width: '100%' }}>
-            <Toolbar start={resetButton} end={costContent} style={{padding: '0.4em'}}/>
+            <Toolbar start={resetButton} center={center} end={costContent} style={{padding: '0.4em'}}/>
         </div>
     );
 });

@@ -4,7 +4,9 @@ import viteLogo from '/vite.svg'
 import './App.css'
 
 //theme
-import "primereact/resources/themes/soho-dark/theme.css";     
+// import "primereact/resources/themes/mdc-dark-deeppurple/theme.css";    
+// import "primereact/resources/themes/lara-dark-teal/theme.css"; 
+import "primereact/resources/themes/vela-blue/theme.css";
     
 //core
 import "primereact/resources/primereact.min.css"; 
@@ -30,11 +32,11 @@ function App() {
       <Header />
       <div style={{ display: 'flex', flexDirection: 'column', height: `calc(100vh - 100px)` }}>
       <Splitter style={{ flex: 1, marginTop: '5px' }}>
-          <SplitterPanel className="flex align-items-center justify-content-center" style={{height: `calc(100vh - 80px)`}}>
-            <Message severity="info" text="Prompt templates, including the best template, update every 5 iterations of 'refine.' This allows for parallel exploration from a single template." style={{width: '100%', textAlign: "left"}}/>
+          <SplitterPanel size={60} className="flex align-items-center justify-content-center" style={{height: `calc(100vh - 80px)`}}>
+            <Message severity="info" text="Prompt templates, including the best template, update every 5 iterations of 'refine.' This allows for parallel exploration from a single template." style={{width: '100%', textAlign: "left", justifyContent: "left"}}/>
             <PromptTable />
           </SplitterPanel>
-          <SplitterPanel className="flex align-items-center justify-content-center" style={{height: `calc(100vh - 80px)`}}>
+          <SplitterPanel size={40} className="flex align-items-center justify-content-center" style={{height: `calc(100vh - 80px)`}}>
             <ChatHistory />
           </SplitterPanel>
       </Splitter>

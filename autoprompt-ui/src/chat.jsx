@@ -172,7 +172,7 @@ const ChatHistory = () => {
           const justifyPos = message.author === 'user' ? 'right' : 'left';
           // const severity = message.author === 'user' ? 'success' : 'info';
 
-          return (<div key={index} className="message" style={{textAlign: justifyPos}}>
+          return (<div key={index} className="message" style={{textAlign: justifyPos, justifyContent: justifyPos}}>
             <div style={{maxWidth: '80%'}}>
             <Message content={message.text} className={`message-${index}`} severity={message.status} style={{
                     // border: 'solid #696cff',
@@ -203,24 +203,24 @@ const ChatHistory = () => {
                     formik.setFieldValue('action', e.value);
                 }}
                 className={isFormFieldInvalid('action') ? 'p-invalid' : null}
-                style={{fontSize: "12px", height: "50px"}}
+                style={{fontSize: "12px", height: "40px"}}
             />
             {/* <div className="p-inputgroup"> */}
             <InputText
               value={formik.values.inputValue}
               onChange={(e) => {formik.setFieldValue('inputValue', e.target.value);}}
               onKeyDown={handleKeyDown}
-              placeholder="Type a message..."
+              placeholder="Enter a value..."
               className="message-input"
-              style={{ flex: "1", height: "50px" }} 
+              style={{ flex: "1", height: "40px" }} 
             />
             <Button
-              label="Send"
+              label="Submit"
               // icon="pi pi-check"
               // onClick={handleSendMessage}
               className="send-button"
               type="submit"
-              style={{height: "50px"}}
+              style={{height: "40px"}}
               outlined
               size="small"
             />
