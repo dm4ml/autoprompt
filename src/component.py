@@ -6,6 +6,7 @@ from tenacity import (
     retry,
     stop_after_attempt,
     wait_random_exponential,
+    retry_if_not_exception_type,
 )  # for exponential backoff
 
 import os
@@ -81,8 +82,17 @@ def set_template(state, values, infer_results):
 
 
 @PromptEngineer.infer("refine")
-@retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
+@retry(
+    retry=retry_if_not_exception_type(KeyError),
+    wait=wait_random_exponential(min=1, max=60),
+    stop=stop_after_attempt(6),
+)
 def execute_prompt(state, value):
+    user_feedback = value
+
+    if "best_template" not in state:
+        raise KeyError("Must set template first")
+
     template = state["best_template"]
     results = state["best_results"]
     cost = 0.0
@@ -103,7 +113,7 @@ def execute_prompt(state, value):
     feedback = response["choices"][0].message["content"]
 
     # Get a new prompt
-    user_prompt = prompt.assemble_for_new_prompt(feedback)
+    user_prompt = prompt.assemble_for_new_prompt(feedback, user_feedback)
     messages = [{"role": "user", "content": user_prompt}]
     while True:
         current_messages = state["prompteng_messages"] + messages
@@ -115,7 +125,8 @@ def execute_prompt(state, value):
                 stop=["\n"],
             )
         except Exception as e:
-            print([state["prompteng_system_message"]] + current_messages)
+            print(response)
+            # print([state["prompteng_system_message"]] + current_messages)
             raise e
         cost += response["usage"]["total_tokens"] * 0.002 / 1000.0
         better_prompt = response["choices"][0].message["content"]

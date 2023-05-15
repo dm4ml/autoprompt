@@ -120,6 +120,12 @@ You can upload the latest json file in this repo to [the Motion component vis to
 You can generate the json file yourself by running this command in the `autoprompt` directory:
 
 ```bash
-$ motion vis src::PromptEngineer
+$ motion vis src:PromptEngineer
 ✅ Graph dumped to 2023-05-12-12-33-42_PromptEngineer_graph.json.
+```
+
+## Running the webapp
+
+```bash
+npm run watch --prefix autoprompt-ui & uvicorn webapp:app --reload && fg
 ```
