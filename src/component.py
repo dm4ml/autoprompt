@@ -51,8 +51,11 @@ def setUp():
     return {
         "prompteng_system_message": prompteng_system_message,
         "prompteng_messages": [],
+        "templates_and_results": [],
         "examples": [],
         "cost": 0.0,
+        "best_template": None,
+        "best_results": None,
     }
 
 
@@ -74,6 +77,7 @@ def set_template(state, values, infer_results):
         evaluate_examples(state["examples"], values[0])
     )
     return {
+        "templates_and_results": [(values[0], results)],
         "best_template": values[0],
         "best_results": results,
         "task": values[0],
@@ -208,4 +212,6 @@ def update_template(state, values, infer_results):
         "cost": state["cost"] + cost,
         "best_template": best_template,
         "best_results": best_results,
+        "templates_and_results": state["templates_and_results"]
+        + templates_and_results[:-1],
     }

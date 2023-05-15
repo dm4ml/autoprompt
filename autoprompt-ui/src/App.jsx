@@ -14,69 +14,16 @@ import React from 'react';
 
 import Header from './header';
 import { Splitter, SplitterPanel } from 'primereact/splitter';
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
+import { Message } from 'primereact/message';
 import ChatHistory from './chat';
+import PromptTable from './table';
 
 // Components:
 // * Card for initial form (with button)
 // * Card for incremental updates
 // * Displays of prompts
 
-const CustomBodyTemplate = (rowData, column) => {
-  return (
-    <div style={{ whiteSpace: 'normal', wordWrap: 'break-word' }}>
-      {rowData[column.field]}
-    </div>
-  );
-};
-
 function App() {
-  const [count, setCount] = useState(0)
-
-  const products = [
-    {
-      template: 'template1',
-    },
-    {
-      template: 'template2',
-    },
-    {
-      template: 'template3',
-    },
-    {
-      template: 'template1',
-    },
-    {
-      template: 'template2',
-    },
-    {
-      template: 'template3',
-    },
-    {
-      template: 'template1',
-    },
-    {
-      template: 'template2',
-    },
-    {
-      template: 'template3',
-    },
-    {
-      template: 'template1',
-    },
-    {
-      template: 'template2',
-    },
-    {
-      template: 'template3 this one is so long and so many words to see if it will actually wrap. i will be very curious to see if it will wrap.',
-    },
-  ];
-
-  const columns = [
-    { field: 'template', header: 'Prompt Template' },
-    // ... other columns
-  ];
 
   return (
     <div style={{ width: '100%' }}>
@@ -84,20 +31,8 @@ function App() {
       <div style={{ display: 'flex', flexDirection: 'column', height: `calc(100vh - 100px)` }}>
       <Splitter style={{ flex: 1, marginTop: '5px' }}>
           <SplitterPanel className="flex align-items-center justify-content-center" style={{height: `calc(100vh - 80px)`}}>
-            <DataTable stripedRows size="small" value={products} scrollable scrollHeight="flex" >
-              {columns.map((column) => (
-                <Column
-                  key={column.field}
-                  field={column.field}
-                  header={column.header}
-                  body={CustomBodyTemplate}
-                />
-              ))}
-                {/* <Column field="template" header="Template"></Column> */}
-                {/* <Column field="name" header="Name"></Column>
-                <Column field="category" header="Category"></Column>
-                <Column field="quantity" header="Quantity"></Column> */}
-            </DataTable>
+            <Message severity="info" text="Prompt templates, including the best template, update every 5 iterations of 'refine.' This allows for parallel exploration from a single template." style={{width: '100%', textAlign: "left"}}/>
+            <PromptTable />
           </SplitterPanel>
           <SplitterPanel className="flex align-items-center justify-content-center" style={{height: `calc(100vh - 80px)`}}>
             <ChatHistory />

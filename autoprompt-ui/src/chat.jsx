@@ -172,7 +172,7 @@ const ChatHistory = () => {
           const justifyPos = message.author === 'user' ? 'right' : 'left';
           // const severity = message.author === 'user' ? 'success' : 'info';
 
-          return (<div key={index} className="message" style={{justifyContent: justifyPos}}>
+          return (<div key={index} className="message" style={{textAlign: justifyPos}}>
             <div style={{maxWidth: '80%'}}>
             <Message content={message.text} className={`message-${index}`} severity={message.status} style={{
                     // border: 'solid #696cff',
@@ -190,7 +190,7 @@ const ChatHistory = () => {
       <div className="chat-input" style={{width: "100%"}}>
             {/* <i className="pi pi-star-fill"></i> */}
           {/* <SpeedDial model={items} direction="up" radius={20} buttonStyle={{ width: '24px', height: '24px', fontSize: '12px' }} /> */}
-          <form onSubmit={formik.handleSubmit}  style={{width: "100%"}}>
+          <form onSubmit={formik.handleSubmit}  style={{width: "100%", display: "flex"}}>
             <Toast ref={toast} />
             <Dropdown
                 inputId="city"
@@ -212,7 +212,7 @@ const ChatHistory = () => {
               onKeyDown={handleKeyDown}
               placeholder="Type a message..."
               className="message-input"
-              style={{ width: "calc(100% - 280px)", height: "50px" }} 
+              style={{ flex: "1", height: "50px" }} 
             />
             <Button
               label="Send"
@@ -221,6 +221,8 @@ const ChatHistory = () => {
               className="send-button"
               type="submit"
               style={{height: "50px"}}
+              outlined
+              size="small"
             />
             {/* </div> */}
           </form>

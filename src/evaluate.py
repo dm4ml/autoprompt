@@ -15,7 +15,7 @@ from typing import List, Dict, Tuple
 @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
 async def run_prompts(prompts: List[str]):
     completion = await openai.Completion.acreate(
-        model="text-babbage-001", prompt=prompts, max_tokens=50, stop=["\n"]
+        model="text-babbage-001", prompt=prompts, max_tokens=50
     )
     cost = completion["usage"]["total_tokens"] * 0.0005 / 1000.0
     results = {choice.index: choice.text for choice in completion.choices}

@@ -5,11 +5,11 @@ from fastapi import FastAPI, HTTPException, Response, Body
 from fastapi.staticfiles import StaticFiles
 from src import PromptEngineer
 
-from typing import List, Dict
+from typing import List, Dict, Tuple
+import json
 
 
 app = FastAPI()
-app.state.component = PromptEngineer()
 
 
 @app.post("/add_example")
@@ -103,6 +103,34 @@ async def cost() -> float:
     return app.state.component.read_state("cost")
 
 
+@app.get("/templates_and_results")
+async def templates_and_results() -> Response:
+    templates_and_results: List[
+        Tuple[str, Dict[str, str]]
+    ] = app.state.component.read_state("templates_and_results")
+    best_template = app.state.component.read_state("best_template")
+
+    templates_and_results = [
+        {
+            "template": template,
+            "results": [
+                {"prompt": prompt, "completion": result}
+                for prompt, result in results.items()
+            ],
+            "status": "n/a" if template != best_template else "best",
+        }
+        for template, results in templates_and_results
+    ]
+
+    # Convert to JSON
+    result = json.dumps(templates_and_results)
+    return Response(
+        status_code=200,
+        media_type="application/json",
+        content=result,
+    )
+
+
 @app.get("/best_template")
 async def best_template() -> str:
     return app.state.component.read_state("best_template")
@@ -116,6 +144,22 @@ async def best_results() -> Dict[str, str]:
 # @app.get("/")
 # def read_root():
 #     return {"Hello": "World"}
+
+
+@app.post("/reset")
+async def reset() -> Response:
+    app.state.component.shutdown()
+    app.state.component = PromptEngineer()
+    return Response(
+        status_code=200,
+        media_type="text/plain",
+        content=f"Reset the prompt engineer.",
+    )
+
+
+@app.on_event("startup")
+async def startup():
+    app.state.component = PromptEngineer()
 
 
 @app.on_event("shutdown")

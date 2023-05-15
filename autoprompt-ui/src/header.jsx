@@ -13,6 +13,7 @@ import { Menubar } from 'primereact/menubar';
 const Header = React.forwardRef((props, ref) => {
 
     const [cost, setCost] = useState(0.0);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -46,10 +47,38 @@ const Header = React.forwardRef((props, ref) => {
         </React.Fragment>
     );
 
+    const reset = () => {
+        setLoading(true);
+
+        fetch('/reset', {
+            method: 'POST',
+          })
+        .then((response) => {
+            if (response.ok) {
+                console.log('Reset successful');
+                setLoading(false);
+                window.location.reload();
+            } else {
+                console.error('Reset failed');
+                // TODO: Handle the failed response
+            }
+        })
+        .catch((error) => {
+            console.error('Request failed:', error);
+            // TODO: Handle the fetch error
+        });
+    };
+
+    const resetButton = (
+        <React.Fragment>
+            <Button label="Restart" icon="pi pi-refresh"  loading={loading} severity="danger" onClick={reset} size="small" outlined />
+        </React.Fragment>
+    );
+
 
     return (
         <div style={{ width: '100%' }}>
-            <Toolbar end={costContent} style={{padding: '0.4em'}}/>
+            <Toolbar start={resetButton} end={costContent} style={{padding: '0.4em'}}/>
         </div>
     );
 });
