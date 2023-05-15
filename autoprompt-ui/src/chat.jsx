@@ -173,12 +173,14 @@ const ChatHistory = () => {
           // const severity = message.author === 'user' ? 'success' : 'info';
 
           return (<div key={index} className="message" style={{justifyContent: justifyPos}}>
+            <div style={{maxWidth: '80%'}}>
             <Message content={message.text} className={`message-${index}`} severity={message.status} style={{
                     // border: 'solid #696cff',
                     borderWidth: '0 0 0 6px',
                     // color: '#696cff',
-                    padding: '0.25em'
+                    padding: '0.25em',
                 }} />
+            </div>
             {/* <Tooltip target={`.message-${index}`} position="right" content={`Tooltip for Message ${index}`} style={{padding: '0.25em'}}/> */}
           </div>);
         })}
