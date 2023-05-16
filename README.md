@@ -4,11 +4,13 @@ This is a simple tool to help you **automatically find the best prompt for ChatG
 
 ## Installation
 
-You will need Python 3.10 or later and node install. Clone this repository and install the requirements:
+You will need Python 3.10 or later and node installed. Clone this repository and install the requirements:
 
 ```bash
-$ pip install -r requirements.txt
+$ make install
 ```
+
+You can run the install commands yourself if you do not use pip or npm as your package managers.
 
 Make sure your OpenAI API key is set in the environment variable `OPENAI_API_KEY`.
 
