@@ -46,7 +46,7 @@ def setUp():
 
     prompteng_system_message = {
         "role": "system",
-        "content": "You are a prompt engineer, generating the best prompt for a task. You are given a current prompt. You will iteratively generate prompts, based on the current prompt, and receive feedback on how good the prompt is for some examples. You will then generate a new prompt based on the feedback, until the task is deemed complete.",
+        "content": "You are a prompt engineer, and your goal is to generate the best prompt template for a large language model to perform some task.",
     }
     return {
         "prompteng_system_message": prompteng_system_message,
@@ -56,6 +56,7 @@ def setUp():
         "cost": 0.0,
         "best_template": None,
         "best_results": None,
+        "initial_template": None,
     }
 
 
@@ -78,6 +79,7 @@ def set_template(state, values, infer_results):
     )
     return {
         "templates_and_results": [(values[0], results)],
+        "initial_template": values[0],
         "best_template": values[0],
         "best_results": results,
         "task": values[0],

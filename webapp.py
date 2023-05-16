@@ -109,6 +109,15 @@ async def templates_and_results() -> Response:
         Tuple[str, Dict[str, str]]
     ] = app.state.component.read_state("templates_and_results")
     best_template = app.state.component.read_state("best_template")
+    initial_template = app.state.component.read_state("initial_template")
+
+    def check_status(template: str) -> str:
+        if template == best_template:
+            return "best"
+        elif template == initial_template:
+            return "initial"
+        else:
+            return "n/a"
 
     templates_and_results = [
         {
@@ -117,7 +126,7 @@ async def templates_and_results() -> Response:
                 {"prompt": prompt, "completion": result}
                 for prompt, result in results.items()
             ],
-            "status": "n/a" if template != best_template else "best",
+            "status": check_status(template),
         }
         for template, results in templates_and_results
     ]

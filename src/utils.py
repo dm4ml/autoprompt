@@ -15,7 +15,7 @@ class Prompt(BaseModel):
         prompt_str = "Current prompt template: {template}".format(
             template=self.template
         )
-        result_str = "Result of current prompt template on examples: {llm_result}".format(
+        result_str = "Result of current prompt template on some examples: {llm_result}".format(
             llm_result=llm_result
         )
         joined = "\n".join([prompt_str, result_str])
@@ -38,7 +38,7 @@ class Prompt(BaseModel):
             else ""
         )
         feedback_str = (
-            "Other feedback on the results: {feedback}".format(
+            "Automated feedback on the results: {feedback}".format(
                 feedback=feedback
             )
             if feedback
@@ -51,5 +51,5 @@ class Prompt(BaseModel):
         )
         return (
             joined
-            + "\n\nPlease provide a better prompt template, and return only the prompt template. Make sure you include {example} in your prompt template."
+            + "\n\nProvide a better prompt template. Return only the prompt template. Make sure you include {example} in your prompt template."
         )

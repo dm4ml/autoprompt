@@ -1,7 +1,8 @@
-motion-python
+motion-python=0.1.41
 rich
 openai
 pydantic
 asyncio
 tenacity
 fastapi
+uvicorn
