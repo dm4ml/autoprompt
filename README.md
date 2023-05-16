@@ -2,6 +2,8 @@
 
 This is a simple tool to help you **automatically find the best prompt for ChatGPT to perform a task.** You specify a prompt template, some examples to evaluate the prompt template on, and the tool will iteratively refine the prompt template to perform better on the examples.
 
+I built this tool to automate better prompt engineering for myself, and I hope it will be useful for you too. It is built on top of [Motion](https://dm4ml.github.io/motion/), an MLOps framework for continually updating models and prompts in response to new dataflow and data drift.
+
 ## Installation
 
 You will need Python 3.10 or later and node installed. Clone this repository and install the requirements:
