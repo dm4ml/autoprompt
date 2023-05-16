@@ -62,5 +62,5 @@ You can generate the json file yourself by running this command in the `autoprom
 
 ```bash
 $ motion vis src:PromptEngineer
-✅ Graph dumped to 2023-05-12-12-33-42_PromptEngineer_graph.json.
+✅ Graph dumped to 2023-05-15-12-29-59_PromptEngineer_graph.json
 ```
