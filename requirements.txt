@@ -1,4 +1,4 @@
-motion-python==0.1.41
+motion-python==0.1.42
 rich
 openai
 pydantic
